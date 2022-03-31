@@ -22,7 +22,7 @@ namespace PrologixGPIB
 			.Replace("\n", "\u001B\n")
 			.Replace("+", "\u001B+");
 
-		public GPIB(string host, int address, int timeout = 3000)
+		public GPIB(string host, int address, int timeout = 3000, bool configureAdapter = true)
 		{
 			Host = host;
 			Address = address;
@@ -31,16 +31,19 @@ namespace PrologixGPIB
 			client = new TcpClient(host, 1234);
 			stream = client.GetStream();
 
-			stream.WriteLine("++savecfg 0");
-			stream.WriteLine("++mode 1");
-			stream.WriteLine($"++addr {address}");
-			stream.WriteLine("++auto 0");
-			stream.WriteLine("++eoi 1");
-			stream.WriteLine("++eos 2");
-			stream.WriteLine("++eot_enable 0");
-			stream.WriteLine("++eot_char 0");
-			stream.WriteLine($"++read_tmo_ms {timeout}");
-			stream.WriteLine("++ifc");
+			if (configureAdapter)
+			{
+				stream.WriteLine("++savecfg 0");
+				stream.WriteLine("++mode 1");
+				stream.WriteLine($"++addr {address}");
+				stream.WriteLine("++auto 0");
+				stream.WriteLine("++eoi 1");
+				stream.WriteLine("++eos 2");
+				stream.WriteLine("++eot_enable 0");
+				stream.WriteLine("++eot_char 0");
+				stream.WriteLine($"++read_tmo_ms {timeout}");
+				stream.WriteLine("++ifc");
+			}
 		}
 
 		public void Send(string line) =>
