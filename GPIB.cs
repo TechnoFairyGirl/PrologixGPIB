@@ -16,6 +16,8 @@ namespace PrologixGPIB
 		readonly TcpClient client;
 		readonly NetworkStream stream;
 
+		public bool Connected { get => client != null && client.Connected; }
+
 		static string EscapeString(string str) => str
 			.Replace("\u001B", "\u001B\u001B")
 			.Replace("\r", "\u001B\r")
@@ -31,19 +33,21 @@ namespace PrologixGPIB
 			client = new TcpClient(host, 1234);
 			stream = client.GetStream();
 
+			stream.WriteLine("++savecfg 0");
+			stream.WriteLine($"++addr {address}");
+
 			if (configureAdapter)
 			{
-				stream.WriteLine("++savecfg 0");
 				stream.WriteLine("++mode 1");
-				stream.WriteLine($"++addr {address}");
 				stream.WriteLine("++auto 0");
 				stream.WriteLine("++eoi 1");
 				stream.WriteLine("++eos 2");
 				stream.WriteLine("++eot_enable 0");
 				stream.WriteLine("++eot_char 0");
 				stream.WriteLine($"++read_tmo_ms {timeout}");
-				stream.WriteLine("++ifc");
 			}
+
+			stream.WriteLine("++ifc");
 		}
 
 		public void Send(string line) =>
@@ -87,6 +91,9 @@ namespace PrologixGPIB
 
 		public void Local() =>
 			stream.WriteLine("++loc");
+
+		public void Reset() =>
+			stream.WriteLine("++clr");
 
 		public void Dispose()
 		{
