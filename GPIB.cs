@@ -30,7 +30,7 @@ namespace PrologixGPIB
 			Address = address;
 			Timeout = timeout;
 
-			client = new TcpClient(host, 1234);
+			client = new TcpClient(host, 1234) { NoDelay = true };
 			stream = client.GetStream();
 
 			stream.WriteLine("++savecfg 0");
